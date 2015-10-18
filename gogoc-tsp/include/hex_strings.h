@@ -53,6 +53,8 @@
 #define GOGO_STR_ERR_IN_KEY_VERIF                          "Failed key verification."
 #define GOGO_STR_ERR_OPEN_DEV                              "Failed to open device: %s."
 #define GOGO_STR_ERR_OPEN_TUN_DEV                          "Failed to open tun device: %s."
+#define GOGO_STR_ERR_CTLIOCGINFO_OPEN_TUN_DEV              "Failed to ioctl(CTLIOCGINFO) after open tun device: %s."
+#define GOGO_STR_ERR_AF_SYS_CONTROL_OPEN_TUN_DEV           "Failed to connect(AF_SYS_CONTROL) after open tun device: %s."
 #define GOGO_STR_ERR_ROTATING_LOG_FILE                     "Failed to rotate the log file."
 #define GOGO_STR_ERR_FIND_DST_IP                           "Failed to find destination IP address."
 #define GOGO_STR_ERR_FIND_SRC_IP                           "Failed to find source IP address."

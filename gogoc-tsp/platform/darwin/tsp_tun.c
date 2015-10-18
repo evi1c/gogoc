@@ -14,6 +14,12 @@ Copyright (c) 2001-2006 gogo6 Inc. All rights reserved.
 #include "platform.h"
 #include "gogoc_status.h"
 
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/sys_domain.h>
+#include <sys/kern_control.h>
+#include <net/if_utun.h>
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -49,18 +55,49 @@ void TunName(int tunfd, char *name, size_t name_len )
 //
 int TunInit( char* name )
 {
+  struct sockaddr_ctl sc;
+  struct ctl_info ctlInfo;
   int tunfd;
   char iftun[128];
 
+  //snprintf( iftun, sizeof(iftun), "/dev/%s", name );
   snprintf( iftun, sizeof(iftun), "/dev/%s", name );
+  //
+  //tunfd = open( iftun, O_RDWR );
+  memset(&ctlInfo, 0, sizeof(ctlInfo));
+    if (strlcpy(ctlInfo.ctl_name, UTUN_CONTROL_NAME, sizeof(ctlInfo.ctl_name)) >=
+      sizeof(ctlInfo.ctl_name)) {
+        fprintf(stderr,"UTUN_CONTROL_NAME too long");
+          return -1;
+	}
+    tunfd = socket(PF_SYSTEM, SOCK_DGRAM, SYSPROTO_CONTROL);
 
-  tunfd = open( iftun, O_RDWR );
   if( tunfd == -1 )
   {
     Display(LOG_LEVEL_1, ELError, "TunInit", GOGO_STR_ERR_OPEN_TUN_DEV, iftun);
     return(-1);
   }
+  if (ioctl(tunfd, CTLIOCGINFO, &ctlInfo) == -1) {
+    Display(LOG_LEVEL_1, ELError, "TunInit", GOGO_STR_ERR_CTLIOCGINFO_OPEN_TUN_DEV, iftun);
+    //perror ("ioctl(CTLIOCGINFO)");
+    close(tunfd);
+    return -1;
+  }
 
+  sc.sc_id = ctlInfo.ctl_id;
+  sc.sc_len = sizeof(sc);
+  sc.sc_family = AF_SYSTEM;
+  sc.ss_sysaddr = AF_SYS_CONTROL;
+  sc.sc_unit = 1;	/* FIX ME .. */
+
+  if (connect(tunfd, (struct sockaddr *)&sc, sizeof(sc)) == -1) {
+    Display(LOG_LEVEL_1, ELError, "TunInit", GOGO_STR_ERR_CTLIOCGINFO_OPEN_TUN_DEV, iftun);
+    //perror ("connect(AF_SYS_CONTROL)");
+    close(tunfd);
+    return -1;
+  }
+
+  Display(LOG_LEVEL_1, ELError, "TunInit", "%s created", iftun);
   return tunfd;
 }
 
@@ -108,6 +145,9 @@ gogoc_status TunMainLoop( int tunfd,
       return make_status(CTX_TUNNELLOOP, ERR_KEEPALIVE_ERROR);
     }
   }
+
+  // tun device wants bufin[0]...[3] to contain AF_INET6
+  ((u_int32_t *)bufin)[0] = htonl(AF_INET6);
 
 
   // Data send loop.
@@ -191,7 +231,7 @@ gogoc_status TunMainLoop( int tunfd,
           goto done;
         }
 
-        if (send(Socket, bufout, count, 0) != count)
+        if (send(Socket, bufout+4, count-4, 0) != count-4)
         {
           Display(LOG_LEVEL_1, ELError, "TunMainLoop", STR_NET_FAIL_W_SOCKET);
           status = make_status(CTX_TUNNELLOOP, ERR_TUNNEL_IO);
@@ -202,8 +242,8 @@ gogoc_status TunMainLoop( int tunfd,
       if(FD_ISSET(Socket,&rfds))
       {
         // Data received through UDP tunnel.
-        count = recvfrom( Socket, bufin, TUN_BUFSIZE, 0, NULL, NULL );
-        if (write(tunfd, bufin, count) != count)
+        count = recvfrom( Socket, bufin +4, TUN_BUFSIZE -4, 0, NULL, NULL );
+        if (write(tunfd, bufin, count +4) != count +4)
         {
           Display(LOG_LEVEL_1, ELError, "TunMainLoop", STR_NET_FAIL_W_TUN_DEV);
           status = make_status(CTX_TUNNELLOOP, ERR_TUNNEL_IO);

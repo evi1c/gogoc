@@ -57,7 +57,7 @@ error_t send_haccess_status_info( void ) { return GOGOCM_UIS__NOERROR; }
 void tspSetEnv(char *Variable, char *Value, int Flag)
 {
   Display(LOG_LEVEL_3, ELInfo, "tspSetEnv", GOGO_STR_ENV_PRINT_VALUE, Variable, Value);
-  setenv(Variable, Value, Flag);
+  if ( Value != NULL ) setenv(Variable, Value, Flag);
 }
 
 // --------------------------------------------------------------------------
@@ -171,9 +171,10 @@ gogoc_status tspStartLocal( int socket, tConf *c, tTunnel *t, net_tools_t *nt )
     }
 
     // Get the real name of the opened tun device for the template script.
-    free( c->if_tunnel_v6udpv4 );
-    c->if_tunnel_v6udpv4 = (char*) malloc( IFNAMSIZ );
-    TunName( tunfd, c->if_tunnel_v6udpv4, IFNAMSIZ );
+    // FIXME NONEED
+    //free( c->if_tunnel_v6udpv4 );
+    //c->if_tunnel_v6udpv4 = (char*) malloc( IFNAMSIZ );
+    //TunName( tunfd, c->if_tunnel_v6udpv4, IFNAMSIZ );
   }
 
   while( 1 ) // Dummy loop. 'break' instruction at the end.
@@ -222,6 +223,7 @@ gogoc_status tspStartLocal( int socket, tConf *c, tTunnel *t, net_tools_t *nt )
         // Error: child has not exited properly. Maybe killed ?
         Display( LOG_LEVEL_1, ELError, "tspStartLocal", STR_GEN_SCRIPT_EXEC_FAILED );
         status = make_status(CTX_TUNINTERFACESETUP, ERR_INTERFACE_SETUP_FAILED);
+        Display( LOG_LEVEL_1, ELError, "tspStartLocal", "FIXME 1" );
         break;
       }
 
