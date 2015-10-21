@@ -18,5 +18,5 @@ PLATFORM_CFLAGS=
 # Platform default interface names for each tunnel mode.
 #
 PLATFORM_V6V4=gif0
-PLATFORM_V6UDPV4=tun0
+PLATFORM_V6UDPV4=utun0
 PLATFORM_V4V6=

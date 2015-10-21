@@ -50,7 +50,7 @@ INSTALL_BIN   :=$(INSTALL_DIR)/bin
 INSTALL_SHARE :=$(INSTALL_DIR)/share
 INSTALL_MAN   :=$(INSTALL_DIR)/share/man
 INSTALL_TEMPL :=$(INSTALL_DIR)/share/gogoc/template
-INSTALL_CFG   :=$(INSTALL_DIR)/../etc/gogoc
+INSTALL_CFG   :=$(INSTALL_DIR)/etc/gogoc
 
 
 SUBDIRS=$(PWD)/src/lib \
