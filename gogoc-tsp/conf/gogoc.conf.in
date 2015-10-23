@@ -120,7 +120,7 @@ dns_server=
 #   Directory where the gogoCLIENT will be installed. This value has been 
 #   set during installation.
 #
-gogoc_dir=/etc/gogoc
+gogoc_dir=@conf_gogoc_dir@
 
 #
 # Auto-Retry Connect, Retry Delay and Max Retry Delay:
@@ -224,7 +224,7 @@ proxy_client=no
 #
 #   broker_list=<file_name>
 #  
-broker_list=/var/lib/gogoc/tsp-broker-list.txt
+broker_list=/tmp/tsp-broker-list.txt
 
 #
 # Last Server Used File Name:
@@ -234,7 +234,7 @@ broker_list=/var/lib/gogoc/tsp-broker-list.txt
 #
 #   last_server=<file_name>
 #
-last_server=/var/lib/gogoc/tsp-last-server.txt
+last_server=/tmp/tsp-last-server.txt
 
 #
 # Always Use Last Known Working Server:
@@ -294,7 +294,7 @@ always_use_same_server=no
 #
 #   log_filename=<file_name>
 #
-log_filename=/var/log/gogoc/gogoc.log
+log_filename=/tmp/gogoc.log
 
 #
 # Log File Rotation:
