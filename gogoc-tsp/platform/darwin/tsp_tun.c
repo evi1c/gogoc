@@ -58,10 +58,17 @@ int TunInit( char* name )
   struct sockaddr_ctl sc;
   struct ctl_info ctlInfo;
   int tunfd;
+  int utunnum = 0; 
   char iftun[128];
 
   //snprintf( iftun, sizeof(iftun), "/dev/%s", name );
-  snprintf( iftun, sizeof(iftun), "/dev/%s", name );
+  snprintf( iftun, sizeof(iftun), "%s", name );
+  if (!sscanf (iftun , "utun%d", &utunnum)==1)
+  {
+    Display(LOG_LEVEL_1, ELError, "TunInit", GOGO_STR_ERR_PARSE_UTUN_DEV, iftun);
+    // FIXME: if the device name is wrong, gogoc won't work anyway.
+    snprintf( iftun, sizeof(iftun), "%s", "utun0");
+  }
   //
   //tunfd = open( iftun, O_RDWR );
   memset(&ctlInfo, 0, sizeof(ctlInfo));
@@ -88,7 +95,7 @@ int TunInit( char* name )
   sc.sc_len = sizeof(sc);
   sc.sc_family = AF_SYSTEM;
   sc.ss_sysaddr = AF_SYS_CONTROL;
-  sc.sc_unit = 1;	/* FIX ME .. */
+  sc.sc_unit = utunnum +1;
 
   if (connect(tunfd, (struct sockaddr *)&sc, sizeof(sc)) == -1) {
     Display(LOG_LEVEL_1, ELError, "TunInit", GOGO_STR_ERR_CTLIOCGINFO_OPEN_TUN_DEV, iftun);
