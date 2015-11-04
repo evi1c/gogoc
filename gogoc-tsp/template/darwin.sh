@@ -160,8 +160,8 @@ if [ X"${TSP_HOST_TYPE}" = X"host" ] || [ X"${TSP_HOST_TYPE}" = X"router" ]; the
    Display 1 Setting up interface $TSP_TUNNEL_INTERFACE
 
    # Delete first any previous tunnel.
-   ExecNoCheck $ifconfig $TSP_TUNNEL_INTERFACE deletetunnel
-   Exec $ifconfig $TSP_TUNNEL_INTERFACE tunnel $TSP_CLIENT_ADDRESS_IPV4 $TSP_SERVER_ADDRESS_IPV4
+   #ExecNoCheck $ifconfig $TSP_TUNNEL_INTERFACE deletetunnel
+   #Exec $ifconfig $TSP_TUNNEL_INTERFACE tunnel $TSP_CLIENT_ADDRESS_IPV4 $TSP_SERVER_ADDRESS_IPV4
 
    #
    # Configured tunnel config (IPv6) 
