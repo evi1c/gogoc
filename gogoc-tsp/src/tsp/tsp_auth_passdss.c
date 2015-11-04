@@ -31,7 +31,7 @@ Copyright (c) 2001-2007 gogo6 Inc. All rights reserved.
 
 #define TSP_AUTH_PASSDSS_STRING "PASSDSS-3DES-1"
 #define TSP_AUTH_PASSDSS_BUFFERSIZE 4096
-#define TSPC_DSA_KEYFILE "/var/lib/gogoc/gogockeys.pub"
+#define TSPC_DSA_KEYFILE "var/run/gogockeys.pub"
 
 #if defined(WIN32) && !defined(WINCE)
 extern BOOL IsService;    // Declared in winpc/tsp_local.c

@@ -50,7 +50,8 @@ INSTALL_BIN   :=$(INSTALL_DIR)/bin
 INSTALL_SHARE :=$(INSTALL_DIR)/share
 INSTALL_MAN   :=$(INSTALL_DIR)/share/man
 INSTALL_TEMPL :=$(INSTALL_DIR)/template
-INSTALL_CFG   :=$(INSTALL_DIR)/etc/gogoc
+INSTALL_CFG   :=$(INSTALL_DIR)/etc
+INSTALL_VAR   :=$(INSTALL_DIR)/var/run
 
 
 SUBDIRS=$(PWD)/src/lib \
@@ -171,6 +172,7 @@ install: check-gogoc-install all
 	@mkdir -p $(INSTALL_MAN)
 	@mkdir -p $(INSTALL_TEMPL)
 	@mkdir -p $(INSTALL_CFG)
+	@mkdir -p $(INSTALL_VAR)
 
 	@for dir in ${SUBDIRS}; do \
 	    $(MAKE) -C $$dir install || exit 1; \
