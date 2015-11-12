@@ -125,7 +125,7 @@ if [ X"${TSP_OPERATION}" = X"TSP_TUNNEL_TEARDOWN" ]; then
     fi
 
     # Remove static IPv6 address
-    ExecNoCheck $ifconfig $TSP_HOME_INTERFACE inet6 $TSP_PREFIX::1 delete
+    ## ExecNoCheck $ifconfig $TSP_HOME_INTERFACE inet6 $TSP_PREFIX::1 delete
 
     # Kill router advertisement daemon
     KillProcess rtadvd
@@ -142,8 +142,8 @@ if [ X"${TSP_OPERATION}" = X"TSP_TUNNEL_TEARDOWN" ]; then
   done
 
   # Delete tunnel.
-  ExecNoCheck $ifconfig $TSP_TUNNEL_INTERFACE deletetunnel
-  
+  ## ExecNoCheck $ifconfig $TSP_TUNNEL_INTERFACE deletetunnel
+  networksetup -setv6automatic Wi-Fi
 
   Display 1 Tunnel tear down completed.
 
@@ -192,6 +192,7 @@ if [ X"${TSP_HOST_TYPE}" = X"host" ] || [ X"${TSP_HOST_TYPE}" = X"router" ]; the
      # echo "echo \"nameserver ${TSP_CLIENT_DNS_ADDRESS_IPV6}\" | cat - ${resolv_conf}.bak >${resolv_conf}"
      # echo "nameserver ${TSP_CLIENT_DNS_ADDRESS_IPV6}" | cat - ${resolv_conf}.bak >${resolv_conf}
    fi
+   networksetup -setv6manual Wi-Fi 2001:db8::babe:face 64
 fi
 
 
