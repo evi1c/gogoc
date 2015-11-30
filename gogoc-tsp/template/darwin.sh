@@ -64,7 +64,7 @@ ExecNoCheck()
          echo $*
       fi
    fi
-   $* # Execute command
+   eval $* # Execute command
 }
 
 # Programs localization 
@@ -77,6 +77,9 @@ route=/sbin/route
 rtadvd=/usr/sbin/rtadvd
 sysctl=/usr/sbin/sysctl
 resolv_conf=/etc/resolv.conf
+
+primaryservice=`echo show State:/Network/Global/IPv4 | scutil | grep PrimaryService | awk '{print $3}'`
+networkservice=`echo show Setup:/Network/Service/$primaryservice | scutil | awk -F': ' '/UserDefinedName/{print $2}'`
 
 if [ -z $TSP_HOME_DIR ]; then
    echo "TSP_HOME_DIR variable not specified!;"
@@ -143,7 +146,7 @@ if [ X"${TSP_OPERATION}" = X"TSP_TUNNEL_TEARDOWN" ]; then
 
   # Delete tunnel.
   ## ExecNoCheck $ifconfig $TSP_TUNNEL_INTERFACE deletetunnel
-  networksetup -setv6automatic Wi-Fi
+  ExecNoCheck "networksetup -setv6automatic \"$networkservice\""
 
   Display 1 Tunnel tear down completed.
 
@@ -192,7 +195,7 @@ if [ X"${TSP_HOST_TYPE}" = X"host" ] || [ X"${TSP_HOST_TYPE}" = X"router" ]; the
      # echo "echo \"nameserver ${TSP_CLIENT_DNS_ADDRESS_IPV6}\" | cat - ${resolv_conf}.bak >${resolv_conf}"
      # echo "nameserver ${TSP_CLIENT_DNS_ADDRESS_IPV6}" | cat - ${resolv_conf}.bak >${resolv_conf}
    fi
-   networksetup -setv6manual Wi-Fi 2001:db8::babe:face 64
+   ExecNoCheck "networksetup -setv6manual \"$networkservice\" 2001:db8::babe:face 64"
 fi
 
 
