@@ -78,8 +78,22 @@ rtadvd=/usr/sbin/rtadvd
 sysctl=/usr/sbin/sysctl
 resolv_conf=/etc/resolv.conf
 
-primaryservice=`echo show State:/Network/Global/IPv4 | scutil | grep PrimaryService | awk '{print $3}'`
-networkservice=`echo show Setup:/Network/Service/$primaryservice | scutil | awk -F': ' '/UserDefinedName/{print $2}'`
+# on resume, we need to wait until the interface is on
+primaryinterface=""
+primaryservice=""
+networkservice=""
+while [ -z "$networkservice" ];
+do
+ primaryinterface=`echo show State:/Network/Global/IPv4 | scutil | grep PrimaryInterface | awk '{print $3}'`
+ primaryservice=`echo show State:/Network/Global/IPv4 | scutil | grep PrimaryService | awk '{print $3}'`
+ networkservice=`echo show Setup:/Network/Service/$primaryservice | scutil | awk -F': ' '/UserDefinedName/{print $2}'`
+ echo "Wait for interface get up"
+ sleep 1
+done
+primaryinterfacemac=`$ifconfig $primaryinterface | grep ether | awk '{print $2}'`
+mactopv6addr=`echo $primaryinterfacemac | awk -F: '{print $1$2":"$3$4":"$5$6}'`
+pseudov6addr=2001:db8:cafe:babe:face:$mactopv6addr
+echo "Pseudo v6 addr will be $pseudov6addr"
 
 if [ -z $TSP_HOME_DIR ]; then
    echo "TSP_HOME_DIR variable not specified!;"
@@ -195,7 +209,7 @@ if [ X"${TSP_HOST_TYPE}" = X"host" ] || [ X"${TSP_HOST_TYPE}" = X"router" ]; the
      # echo "echo \"nameserver ${TSP_CLIENT_DNS_ADDRESS_IPV6}\" | cat - ${resolv_conf}.bak >${resolv_conf}"
      # echo "nameserver ${TSP_CLIENT_DNS_ADDRESS_IPV6}" | cat - ${resolv_conf}.bak >${resolv_conf}
    fi
-   ExecNoCheck "networksetup -setv6manual \"$networkservice\" 2001:db8::babe:face 64"
+   ExecNoCheck "networksetup -setv6manual \"$networkservice\" $pseudov6addr 64"
 fi
 
 
