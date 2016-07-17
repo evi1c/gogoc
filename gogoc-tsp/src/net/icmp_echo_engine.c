@@ -238,8 +238,7 @@ iee_ret_t IEE_init( void** pp_config, iee_mode_t eng_mode,
   p_engine->clbk_recv = recv_clbk;
 
   // Initialize engine socket variables.
-  p_engine->icmp_echo_id = pal_getpid();
-  if (p_engine->icmp_echo_id > 65536) p_engine->icmp_echo_id-=65536;
+  p_engine->icmp_echo_id = pal_getpid() % 65536;
   p_engine->icmp_saf = af;
   switch( p_engine->icmp_saf )
   {
