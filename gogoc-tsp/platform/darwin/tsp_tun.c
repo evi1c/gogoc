@@ -98,7 +98,7 @@ int TunInit( char* name )
   sc.sc_unit = utunnum +1;
 
   if (connect(tunfd, (struct sockaddr *)&sc, sizeof(sc)) == -1) {
-    Display(LOG_LEVEL_1, ELError, "TunInit", GOGO_STR_ERR_CTLIOCGINFO_OPEN_TUN_DEV, iftun);
+    Display(LOG_LEVEL_1, ELError, "TunInit", GOGO_STR_ERR_AF_SYS_CONTROL_OPEN_TUN_DEV, iftun);
     //perror ("connect(AF_SYS_CONTROL)");
     close(tunfd);
     return -1;

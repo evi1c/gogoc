@@ -65,7 +65,7 @@ SUBDIRS=$(PWD)/src/lib \
 	$(PWD)/man
 
 CC_INC_PATHS=-I$(PLATFORM_DIR)/$(PLATFORM) -I/opt/local/include -I$(PWD)/include -I$(GOGOCPAL_INCDIR) -I$(GOGOCPAL_DEFDIR) -I$(GOGOCCFG_INCDIR) -I$(GOGOCMSG_INCDIR)
-LD_LIB_PATHS=-L$(GOGOCPAL_LIBDIR) -L$(GOGOCCFG_LIBDIR) -L$(GOGOCMSG_LIBDIR)
+LD_LIB_PATHS=-L$(GOGOCPAL_LIBDIR) -L$(GOGOCCFG_LIBDIR) -L$(GOGOCMSG_LIBDIR) -L/opt/local/lib
 LD_LIBRARIES=-lgogocpal -lgogocconfig -lgogocmessaging
 
 # Export these variables to sub-makes.
