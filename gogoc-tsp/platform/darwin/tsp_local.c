@@ -171,10 +171,9 @@ gogoc_status tspStartLocal( int socket, tConf *c, tTunnel *t, net_tools_t *nt )
     }
 
     // Get the real name of the opened tun device for the template script.
-    // FIXME NONEED
-    //free( c->if_tunnel_v6udpv4 );
-    //c->if_tunnel_v6udpv4 = (char*) malloc( IFNAMSIZ );
-    //TunName( tunfd, c->if_tunnel_v6udpv4, IFNAMSIZ );
+    free( c->if_tunnel_v6udpv4 );
+    c->if_tunnel_v6udpv4 = (char*) malloc( IFNAMSIZ );
+    TunName( tunfd, c->if_tunnel_v6udpv4, IFNAMSIZ );
   }
 
   while( 1 ) // Dummy loop. 'break' instruction at the end.
