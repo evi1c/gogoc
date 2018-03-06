@@ -78,23 +78,6 @@ rtadvd=/usr/sbin/rtadvd
 sysctl=/usr/sbin/sysctl
 resolv_conf=/etc/resolv.conf
 
-# on resume, we need to wait until the interface is on
-primaryinterface=""
-primaryservice=""
-networkservice=""
-while [ -z "$networkservice" ];
-do
- primaryinterface=`echo show State:/Network/Global/IPv4 | scutil | grep PrimaryInterface | awk '{print $3}'`
- primaryservice=`echo show State:/Network/Global/IPv4 | scutil | grep PrimaryService | awk '{print $3}'`
- networkservice=`echo show Setup:/Network/Service/$primaryservice | scutil | awk -F': ' '/UserDefinedName/{print $2}'`
- echo "Wait for interface get up"
- sleep 1
-done
-primaryinterfacemac=`$ifconfig $primaryinterface | grep ether | awk '{print $2}'`
-mactopv6addr=`echo $primaryinterfacemac | awk -F: '{print $1$2":"$3$4":"$5$6}'`
-pseudov6addr=2001:db8:cafe:babe:face:$mactopv6addr
-echo "Pseudo v6 addr will be $pseudov6addr"
-
 if [ -z $TSP_HOME_DIR ]; then
    echo "TSP_HOME_DIR variable not specified!;"
    exit 1
@@ -134,7 +117,8 @@ if [ X"${TSP_OPERATION}" = X"TSP_TUNNEL_TEARDOWN" ]; then
   # Router deconfiguration.
   if [ X"${TSP_HOST_TYPE}" = X"router" ]; then
     # Remove prefix routing on TSP_HOME_INTERFACE
-    ExecNoCheck $route delete -inet6 $TSP_PREFIX::
+    # no need with utun
+    ## ExecNoCheck $route delete -inet6 $TSP_PREFIX::
 
     # Remove blackhole.
     if [ X"${TSP_PREFIXLEN}" != X"64" ]; then
@@ -149,18 +133,25 @@ if [ X"${TSP_OPERATION}" = X"TSP_TUNNEL_TEARDOWN" ]; then
   fi
 
   # Delete default IPv6 route
-  ExecNoCheck $route delete -inet6 default
+  # no need with utun
+  ## ExecNoCheck $route delete -inet6 default
 
+  # no need with utun
   # Delete the interface IPv6 configuration
-  list=`$ifconfig $TSP_TUNNEL_INTERFACE | grep inet6 | awk '{print $2}' | grep -v '^fe80'`
-  for ipv6address in $list
-  do 
-    Exec $ifconfig $TSP_TUNNEL_INTERFACE inet6 $ipv6address delete
-  done
+  #list=`$ifconfig $TSP_TUNNEL_INTERFACE | grep inet6 | awk '{print $2}' | grep -v '^fe80'`
+  #for ipv6address in $list
+  #do 
+  #  Exec $ifconfig $TSP_TUNNEL_INTERFACE inet6 $ipv6address delete
+  #done
 
   # Delete tunnel.
   ## ExecNoCheck $ifconfig $TSP_TUNNEL_INTERFACE deletetunnel
-  ExecNoCheck "networksetup -setv6automatic \"$networkservice\""
+  #ExecNoCheck "networksetup -setv6automatic \"$networkservice\""
+	scutil >/dev/null 2>&1 <<-EOF
+	open
+	remove State:/Network/Service/$TSP_TUNNEL_INTERFACE/IPv6
+	close
+	EOF
 
   Display 1 Tunnel tear down completed.
 
@@ -209,7 +200,17 @@ if [ X"${TSP_HOST_TYPE}" = X"host" ] || [ X"${TSP_HOST_TYPE}" = X"router" ]; the
      # echo "echo \"nameserver ${TSP_CLIENT_DNS_ADDRESS_IPV6}\" | cat - ${resolv_conf}.bak >${resolv_conf}"
      # echo "nameserver ${TSP_CLIENT_DNS_ADDRESS_IPV6}" | cat - ${resolv_conf}.bak >${resolv_conf}
    fi
-   ExecNoCheck "networksetup -setv6manual \"$networkservice\" $pseudov6addr 64"
+   #ExecNoCheck "networksetup -setv6manual \"$networkservice\" $pseudov6addr 64"
+	scutil >/dev/null 2>&1 <<-EOF
+	open
+	d.init
+	d.add Addresses * $TSP_CLIENT_ADDRESS_IPV6
+	d.add InterfaceName $TSP_TUNNEL_INTERFACE
+	d.add PrefixLength * $TSP_TUNNEL_PREFIXLEN
+	d.add Router $TSP_SERVER_ADDRESS_IPV6
+	set State:/Network/Service/$TSP_TUNNEL_INTERFACE/IPv6
+	close
+	EOF
 fi
 
 
